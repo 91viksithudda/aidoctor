@@ -43,10 +43,10 @@ export async function POST(req: Request) {
     
     // Try different models in order of preference
     const modelsToTry = [
-      "gemini-pro-latest",
-      "gemini-flash-latest",
-      "gemini-2.0-flash",
-      "gemini-2.0-flash-lite"
+      "gemini-1.5-flash",
+      "gemini-1.5-pro",
+      "gemini-1.0-pro",
+      "gemini-pro"
     ];
     
     let result;
