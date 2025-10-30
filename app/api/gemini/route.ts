@@ -42,13 +42,13 @@ export async function POST(req: Request) {
     }
     
     // Try different models in order of preference
-    // Using models with explicit API version prefixes
+    // Using models that are more commonly available
     const modelsToTry = [
       "models/gemini-1.5-flash-001",
-      "models/gemini-1.5-flash",
-      "models/gemini-pro",
+      "models/gemini-pro-1.5-flash-001",
       "models/gemini-1.0-pro-001",
-      "models/gemini-1.0-pro"
+      "models/gemini-pro-vision-001",
+      "models/gemini-pro-001"
     ];
     
     let result;
@@ -78,26 +78,15 @@ export async function POST(req: Request) {
       }
     }
     
-    // If no model worked, return a mock response for demonstration
+    // If no model worked, return error
     if (!text) {
-      console.log("No models worked, returning mock response for demonstration");
-      const mockResponse = `Diagnosis: Based on your symptoms, you might be experiencing a common viral infection.
-
-Common Medicines:
-- Paracetamol 500mg: Take 1 tablet every 6 hours as needed for fever or pain
-- Ibuprofen 200mg: Take 1 tablet every 8 hours for inflammation
-- Vitamin C 500mg: Take 1 tablet daily to boost immunity
-
-Doctor Visit Advice:
-Consult a physician if symptoms persist for more than 5 days, if fever exceeds 103°F (39.4°C), or if you experience difficulty breathing.
-
-Self-care Tips:
-- Get plenty of rest and sleep
-- Stay hydrated by drinking water regularly
-- Use a humidifier or breathe steam to ease congestion
-- Gargle with warm salt water to soothe throat irritation`;
-      
-      return NextResponse.json({ reply: mockResponse });
+      return NextResponse.json(
+        { 
+          error: "Failed to generate health analysis with any available model",
+          details: "No available models could be accessed with your API key"
+        },
+        { status: 500 }
+      );
     }
     
     console.log(`Successfully generated response using model: ${usedModel}`);
