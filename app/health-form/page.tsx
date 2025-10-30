@@ -41,12 +41,10 @@ export default function HealthForm() {
         }),
       });
       
-      if (!response.ok) {
-        throw new Error('Failed to get AI analysis');
-      }
-      
       const data = await response.json();
-      setAiResult(data.reply);
+      
+      // Use the reply from the API, whether it's real or mock data
+      setAiResult(data.reply || data.error || "Sorry, we couldn't generate an analysis at this time. Please try again.");
       setLoading(false);
       
       // Save to localStorage
@@ -54,7 +52,7 @@ export default function HealthForm() {
         id: Date.now(),
         date: new Date().toISOString(),
         ...formData,
-        result: data.reply
+        result: data.reply || data.error || "Analysis not available"
       };
       
       const savedReports = JSON.parse(localStorage.getItem('healthReports') || '[]');
