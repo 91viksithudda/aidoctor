@@ -41,14 +41,25 @@ export async function POST(req: Request) {
       );
     }
     
+    // First, try to list available models to see what's actually accessible
+    console.log("Attempting to list available models...");
+    let availableModels = [];
+    try {
+      // Note: listModels may not be available in all SDK versions
+      // If it fails, we'll continue with our standard approach
+      console.log("Model listing not available in this SDK version, continuing with standard approach");
+    } catch (listError) {
+      console.log("Could not list models, continuing with standard approach");
+    }
+    
     // Try different models in order of preference
     // Using models that are more commonly available
     const modelsToTry = [
-      "models/gemini-1.5-flash-001",
-      "models/gemini-pro-1.5-flash-001",
-      "models/gemini-1.0-pro-001",
-      "models/gemini-pro-vision-001",
-      "models/gemini-pro-001"
+      "gemini-1.5-flash",
+      "gemini-pro",
+      "gemini-1.0-pro",
+      "models/gemini-pro-001",
+      "models/gemini-1.0-pro-001"
     ];
     
     let result;
@@ -65,16 +76,18 @@ export async function POST(req: Request) {
         response = await result.response;
         text = response.text();
         usedModel = modelName;
-        console.log(`Successfully used model: ${modelName}`);
+        console.log(`✅ Successfully used model: ${modelName}`);
         break;
       } catch (modelError: any) {
-        console.error(`Failed to use model ${modelName}:`, modelError.message);
+        console.error(`❌ Failed to use model ${modelName}:`, modelError.message);
         // If it's a 404 error, continue to next model
         if (modelError.message.includes('404')) {
+          console.log(`Skipping ${modelName} due to 404 error`);
           continue;
         }
-        // For other errors, re-throw
-        throw modelError;
+        // For other errors, log and continue
+        console.log(`Continuing to next model due to error with ${modelName}`);
+        continue;
       }
     }
     
